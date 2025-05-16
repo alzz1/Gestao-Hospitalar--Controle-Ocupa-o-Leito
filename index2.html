@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão Hospitalar - Ocupação de Leitos</title>
+   <link rel="stylesheet" href="stylesheet_Standard.css">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .sidebar {
+   display: flex;
+   margin-top: 40%;
+    }
+    .sidebar ul{
+      list-style-type: none;
+      padding: 0;
+      margin-bottom: 20%;
+    }
+
+  </style>
+</head>
+
+<body>
+ 
+  <div class="layout">
+   <div id="header"></div>
+    <div class="main-container">
+      <div id="nav"></div>
+
+      <main class="content">
+        <div class="container">
+          <h2>Sistema de Ocupação de Leitos</h2>
+
+          <div class="filters">
+            <label for="filterAla">Filtrar por ala:</label>
+            <select id="filterAla">
+              <option value="todas">Todas</option>
+              <option value="cardiologia">Cardiologia</option>
+              <option value="ortopedia">Ortopedia</option>
+              <option value="pediatria">Pediatria</option>
+            </select>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Número de Leito</th>
+                  <th>Status</th>
+                  <th>Paciente</th>
+                  <th>Profissional Atribuído</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>101</td>
+                  <td class="status-occupied">Ocupado</td>
+                  <td>João Silva</td>
+                  <td>Dra. Maria Oliveira</td>
+                </tr>
+                <tr>
+                  <td>102</td>
+                  <td class="status-free">Livre</td>
+                  <td>-</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>103</td>
+                  <td class="status-occupied">Ocupado</td>
+                  <td>Ana Costa</td>
+                  <td>Dr. Carlos Souza</td>
+                </tr>
+                <tr>
+                  <td>104</td>
+                  <td class="status-free">Livre</td>
+                  <td>-</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>105</td>
+                  <td class="status-occupied">Ocupado</td>
+                  <td>Mariana Santos</td>
+                  <td>Enf. Paulo Lima</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="chart-toggle-buttons">
+            <button onclick="mostrarGrafico('pizza')">Ocupação de Leito</button>
+            <button onclick="mostrarGrafico('linha')">Histórico de Ocupação</button>
+          </div>
+
+          <div class="chart-container" id="graficoPizza">
+            <h3>Distribuição de Leitos</h3>
+            <canvas id="chartLeitosPizza" width="400" height="300"></canvas>
+          </div>
+
+          <div class="chart-container" id="graficoLinha" style="display: none;">
+            <h3>Utilização Diária de Leitos</h3>
+            <canvas id="chartLeitosLinha" width="400" height="300"></canvas>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="footer"></div>
+  </div>
+
+  <script>
+    let chartPizza;
+    let chartLinha;
+
+    function mostrarGrafico(tipo) {
+      const divPizza = document.getElementById("graficoPizza");
+      const divLinha = document.getElementById("graficoLinha");
+
+      if (tipo === 'pizza') {
+        divPizza.style.display = 'block';
+        divLinha.style.display = 'none';
+
+        if (!chartPizza) {
+          const ctxPizza = document.getElementById('chartLeitosPizza').getContext('2d');
+          chartPizza = new Chart(ctxPizza, {
+            type: 'doughnut',
+            data: {
+              labels: ['Ocupados', 'Livres'],
+              datasets: [{
+                data: [3, 2],
+                backgroundColor: ['#e74c3c', '#2ecc71'],
+                hoverOffset: 10
+              }]
+            }
+          });
+        }
+
+      } else if (tipo === 'linha') {
+        divPizza.style.display = 'none';
+        divLinha.style.display = 'block';
+
+        if (!chartLinha) {
+          const ctxLinha = document.getElementById('chartLeitosLinha').getContext('2d');
+          chartLinha = new Chart(ctxLinha, {
+            type: 'line',
+            data: {
+              labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+              datasets: [{
+                label: 'Leitos Ocupados',
+                data: [2, 3, 3, 4, 3, 2, 3],
+                borderColor: '#3498db',
+                fill: false,
+                tension: 0.4
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: { stepSize: 1 }
+                }
+              }
+            }
+          });
+        }
+      }
+    }
+
+    window.onload = () => {
+      mostrarGrafico('pizza');
+      loadHTML('header', 'header.html');
+      loadHTML('nav', 'navigation.html');
+      loadHTML('footer', 'footer.html');
+    };
+
+    function loadHTML(elementId, url) {
+      const xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+          document.getElementById(elementId).innerHTML = this.responseText;
+        }
+      };
+      xhr.open("GET", url, true);
+      xhr.send();
+    }
+  </script>
+</body>
+
+</html>
